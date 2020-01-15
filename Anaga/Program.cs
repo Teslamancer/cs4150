@@ -11,28 +11,27 @@ namespace Anaga
             string variables = Console.ReadLine();
             string[] tokens = variables.Split(' ');
             int n = int.Parse(tokens[0]);
-            int k = int.Parse(tokens[1]);
+            int k = int.Parse(tokens[1]);            
 
-            int nonAnagrams = 0;
-
-            HashSet<string> words = new HashSet<string>();
+            HashSet<string> solutions = new HashSet<string>();
+            HashSet<string> rejects = new HashSet<string>();
 
             for(int i = 0; i < n; i++)
             {
-                string word = sortString(Console.ReadLine());
-                if (words.Contains(word))
+                string sortedWord = sortString(Console.ReadLine());
+                if (solutions.Contains(sortedWord))
                 {
-                    nonAnagrams--;
-                    continue;
+                    solutions.Remove(sortedWord);
+                    rejects.Add(sortedWord);
                 }
-                else
+                else if (!rejects.Contains(sortedWord))
                 {
-                    words.Add(word);
-                    nonAnagrams++;
-                }                    
+                    solutions.Add(sortedWord);
+                }
+                                  
             }
-            Console.Out.WriteLine(nonAnagrams);
-            Console.Read();
+            Console.Out.WriteLine(solutions.Count);
+            //Console.Read();
         }
 
         protected static string sortString(string input)
