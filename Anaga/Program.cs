@@ -8,17 +8,17 @@ namespace Anaga
     {
         public static void Main(string[] args)
         {
-            string variables = Console.ReadLine();
-            string[] tokens = variables.Split(' ');
-            int n = int.Parse(tokens[0]);
-            int k = int.Parse(tokens[1]);            
+            
+        }
 
+        protected static int numUniqueWords(int n, int k, IEnumerable<string> words)
+        {
             HashSet<string> solutions = new HashSet<string>();
             HashSet<string> rejects = new HashSet<string>();
 
-            for(int i = 0; i < n; i++)
+            foreach (string word in words)
             {
-                string sortedWord = sortString(Console.ReadLine());
+                string sortedWord = sortString(word);
                 if (solutions.Contains(sortedWord))
                 {
                     solutions.Remove(sortedWord);
@@ -28,9 +28,9 @@ namespace Anaga
                 {
                     solutions.Add(sortedWord);
                 }
-                                  
+
             }
-            Console.Out.WriteLine(solutions.Count);
+            return solutions.Count;
             //Console.Read();
         }
 
