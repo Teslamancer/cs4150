@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29503.13
+VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anaga", "Anaga\Anaga.csproj", "{BE732769-BCC8-4569-A390-E8D21EBA4FE1}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PS3-2", "PS3-2\PS3-2.pyproj", "{35D7C22E-BA7F-4C4A-BEE1-BAEC98045CBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BE732769-BCC8-4569-A390-E8D21EBA4FE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE732769-BCC8-4569-A390-E8D21EBA4FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE732769-BCC8-4569-A390-E8D21EBA4FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE732769-BCC8-4569-A390-E8D21EBA4FE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35D7C22E-BA7F-4C4A-BEE1-BAEC98045CBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35D7C22E-BA7F-4C4A-BEE1-BAEC98045CBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {F6F12C33-419B-4E35-82C2-0B9EEC571138}
+		SolutionGuid = {DE013E96-98CF-47F4-B5BF-AE2B501D9744}
 	EndGlobalSection
 EndGlobal
