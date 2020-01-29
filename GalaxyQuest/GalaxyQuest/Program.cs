@@ -1,9 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GalaxyQuest
 {
@@ -41,8 +37,8 @@ namespace GalaxyQuest
             string[] tokens = variables.Split(' ');
             Star.distance = int.Parse(tokens[0]);
             int numStars = int.Parse(tokens[1]);
-            ArrayList candidateGalaxy = new ArrayList();
-            ArrayList PU = new ArrayList();
+            //Stack<Star> candidateGalaxy = new Stack<Star>();
+            Stack<Star> PU = new Stack<Star>();
             //if(numStars % 2 != 0)
             //{
             //    loopCount--;
@@ -53,28 +49,58 @@ namespace GalaxyQuest
                 string star = Console.ReadLine();
                 string[] starCoordinates = variables.Split(' ');
 
-                PU.Add(new Star(int.Parse(starCoordinates[0]),int.Parse(starCoordinates[1])));
+                PU.Push(new Star(int.Parse(starCoordinates[0]),int.Parse(starCoordinates[1])));
             }
-            
-            
+            Star CandidateStar = getMajorityGalaxyStarCandidate(PU);
+            Console.WriteLine("Candidate Star - x=" + CandidateStar.x + " y=" + CandidateStar.y);
+
+
+            Console.Read();
         }
 
-        static int hasMajority(ArrayList candidateGalaxy)
+        static void hasMajorityGalaxy(Star Candidate, Stack<Star> PU)
+        {
+            Stack<Star> toReturn = new Stack<Star>();
+            //toReturn.Push(Candidate);
+            foreach (Star s in PU)
+            {
+                if (Candidate.inGalaxy(s))
+                {
+                    toReturn.Push(s);
+                }
+            }
+            if(toReturn.Count > PU.Count / 2)
+            {
+                Console.WriteLine(toReturn.Count);
+            }
+            else
+            {
+                Console.WriteLine("NO");
+            }
+        }
+
+        static Star getMajorityGalaxyStarCandidate(Stack<Star> candidateGalaxy)
         {
             int loopCount = candidateGalaxy.Count - 1;
+            Stack<Star> toReturn = new Stack<Star>();
             if (candidateGalaxy.Count == 0)
-                return 0;
+                return null;
             else if (candidateGalaxy.Count == 1)
-                return 1;
+                return candidateGalaxy.Pop();
             if (candidateGalaxy.Count % 2 != 0)
             {
                 loopCount--;
+                toReturn.Push(candidateGalaxy.Pop());
             }
             for(int i=0;i<loopCount;i+=2)
             {
-                if((Star)(candidateGalaxy[i]).in)
+                Star a = candidateGalaxy.Pop();
+                if (a.inGalaxy(candidateGalaxy.Pop()))
+                {
+                    toReturn.Push(a);
+                }
             }
-
+            return getMajorityGalaxyStarCandidate(toReturn);
         }
                 
     }
