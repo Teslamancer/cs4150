@@ -31,7 +31,7 @@ namespace GalaxyQuest
                 return distance >= (this.x - other.x) * (this.x - other.x) + (this.y - other.y) * (this.y - other.y);
             }
         }
-        static void Main(string[] args)
+        static void Main(string[] args)//TODO: Test
         {
             string variables = Console.ReadLine();
             string[] tokens = variables.Split(' ');
@@ -64,7 +64,7 @@ namespace GalaxyQuest
         static void hasMajorityGalaxy(Star Candidate, List<Star> PU)
         {
             Stack<Star> toReturn = new Stack<Star>();
-            if(Candidate is null)
+            if(Candidate == null)
             {
                 Console.WriteLine("NO");
                 return;
