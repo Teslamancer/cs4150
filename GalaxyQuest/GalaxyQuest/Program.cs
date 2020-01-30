@@ -31,7 +31,7 @@ namespace GalaxyQuest
                 return distance >= (this.x - other.x) * (this.x - other.x) + (this.y - other.y) * (this.y - other.y);
             }
         }
-        static void Main(string[] args)//TODO: Test
+        static void Main(string[] args)
         {
             string variables = Console.ReadLine();
             string[] tokens = variables.Split(' ');
@@ -103,9 +103,11 @@ namespace GalaxyQuest
             for(int i=0;i<loopCount;i+=2)
             {
                 Star a = candidateGalaxy.Pop();
-                if (a.inGalaxy(candidateGalaxy.Pop()))
+                Star b = candidateGalaxy.Pop();
+                if (a.inGalaxy(b))
                 {
-                    toReturn.Push(a);
+                    toReturn.Push(a);//TODO: Fix this, as pushing both on can form an infinite loop, but only pushing one can cause a false negative
+                    toReturn.Push(b);
                 }
             }
             return getMajorityGalaxyStarCandidate(toReturn);
