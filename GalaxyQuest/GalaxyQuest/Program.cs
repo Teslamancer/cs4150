@@ -28,7 +28,7 @@ namespace GalaxyQuest
 
             public bool inGalaxy(Star other)
             {
-                return distance >= (this.x - other.x) * (this.x - other.x) + (this.y - other.y) * (this.y - other.y);
+                return distance*distance >= (this.x - other.x) * (this.x - other.x) + (this.y - other.y) * (this.y - other.y);
             }
         }
         static void Main(string[] args)
@@ -56,11 +56,34 @@ namespace GalaxyQuest
             //Console.WriteLine("Candidate Star - x=" + CandidateStar.x + " y=" + CandidateStar.y);
 
             //hasMajorityGalaxy(CandidateStar, PU);
-            getMajorityGalaxyStarCandidate(PU, PU);
-            //Console.Read();
+            Star result = getMajorityGalaxyStarCandidate(PU);
+            if(result == null)
+            {
+                Console.WriteLine("NO");
+            }
+            else
+            {
+                HashSet<Star> count = new HashSet<Star>();
+                foreach (Star s in PU)
+                {
+                    if (result.inGalaxy(s))
+                    {
+                        count.Add(s);
+                    }
+                }
+                if (count.Count > PU.Count / 2)
+                {
+                    Console.WriteLine(count.Count);
+                }
+                else
+                {
+                    Console.WriteLine("NO");
+                }
+            }
+            Console.Read();
         }
 
-        static void hasMajorityGalaxy(Star Candidate, List<Star> PU)
+        static Star hasMajorityGalaxy(Star Candidate, List<Star> PU)
         {
             List<Star> toReturn = new List<Star>();            
             //toReturn.Push(Candidate);
@@ -73,15 +96,17 @@ namespace GalaxyQuest
             }
             if(toReturn.Count > PU.Count / 2)
             {
-                Console.WriteLine(toReturn.Count);
+                //Console.WriteLine(toReturn.Count);
+                return Candidate;
             }
             else
             {
-                Console.WriteLine("NO");
+                //Console.WriteLine("NO");
+                return null;
             }
         }
 
-        static Star getMajorityGalaxyStarCandidate(List<Star> candidateGalaxy, List<Star> PU)
+        static Star getMajorityGalaxyStarCandidate(List<Star> candidateGalaxy)
         {
             int loopCount = candidateGalaxy.Count - 1;
             List<Star> toReturn = new List<Star>();
@@ -113,22 +138,23 @@ namespace GalaxyQuest
                         toReturn.Add(b);
                     }
                 }
-                Star x = getMajorityGalaxyStarCandidate(toReturn, PU);
+                Star x = getMajorityGalaxyStarCandidate(toReturn);
 
                 if(x == null)
                 {
-                    if (PU.Count % 2 != 0)
+                    if (candidateGalaxy.Count % 2 != 0)
                     {
-                        hasMajorityGalaxy(y, PU);
+                        return hasMajorityGalaxy(y, candidateGalaxy);
                     }
                     else
                     {
-                        Console.WriteLine("NO");
+                        //Console.WriteLine("NO");
+                        return null;
                     }
                 }
                 else
                 {
-                    hasMajorityGalaxy(x, PU);
+                    return hasMajorityGalaxy(x, candidateGalaxy);
                 }
                 return null;
             }
