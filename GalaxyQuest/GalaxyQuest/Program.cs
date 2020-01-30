@@ -8,19 +8,19 @@ namespace GalaxyQuest
 
         class Star
         {
-            public static int distance
+            public static long distance
             {
                 get;set;
             }
-            public int x
+            public long x
             {
                 get;private set;
             }
-            public int y
+            public long y
             {
                 get; private set;
             }
-            public Star(int x, int y)
+            public Star(long x, long y)
             {
                 this.x = x;
                 this.y = y;
@@ -35,8 +35,8 @@ namespace GalaxyQuest
         {
             string variables = Console.ReadLine();
             string[] tokens = variables.Split(' ');
-            Star.distance = int.Parse(tokens[0]);
-            int numStars = int.Parse(tokens[1]);
+            Star.distance = long.Parse(tokens[0]);
+            long numStars = long.Parse(tokens[1]);
             //Stack<Star> candidateGalaxy = new Stack<Star>();
             List<Star> PU = new List<Star>();
             
@@ -50,7 +50,7 @@ namespace GalaxyQuest
                 string star = Console.ReadLine();
                 string[] starCoordinates = star.Split(' ');
 
-                PU.Add(new Star(int.Parse(starCoordinates[0]),int.Parse(starCoordinates[1])));
+                PU.Add(new Star(long.Parse(starCoordinates[0]),long.Parse(starCoordinates[1])));
             }
             //Star CandidateStar = getMajorityGalaxyStarCandidate(PU);
             //Console.WriteLine("Candidate Star - x=" + CandidateStar.x + " y=" + CandidateStar.y);
@@ -108,7 +108,7 @@ namespace GalaxyQuest
 
         static Star getMajorityGalaxyStarCandidate(List<Star> candidateGalaxy)
         {
-            int loopCount = candidateGalaxy.Count - 1;
+            long loopCount = candidateGalaxy.Count - 1;
             List<Star> toReturn = new List<Star>();
             Star y = null;
             if (candidateGalaxy.Count == 0)
@@ -155,8 +155,7 @@ namespace GalaxyQuest
                 else
                 {
                     return hasMajorityGalaxy(x, candidateGalaxy);
-                }
-                return null;
+                }                
             }
         }
                 
