@@ -54,7 +54,7 @@ namespace GalaxyQuest
             }
             List<Star> immutablePU = new List<Star>(PU);
             Star CandidateStar = getMajorityGalaxyStarCandidate(PU);
-            Console.WriteLine("Candidate Star - x=" + CandidateStar.x + " y=" + CandidateStar.y);
+            //Console.WriteLine("Candidate Star - x=" + CandidateStar.x + " y=" + CandidateStar.y);
 
             hasMajorityGalaxy(CandidateStar, immutablePU);
 
@@ -64,6 +64,11 @@ namespace GalaxyQuest
         static void hasMajorityGalaxy(Star Candidate, List<Star> PU)
         {
             Stack<Star> toReturn = new Stack<Star>();
+            if(Candidate is null)
+            {
+                Console.WriteLine("NO");
+                return;
+            }
             //toReturn.Push(Candidate);
             foreach (Star s in PU)
             {
