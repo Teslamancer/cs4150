@@ -39,6 +39,7 @@ namespace GalaxyQuest
             int numStars = int.Parse(tokens[1]);
             //Stack<Star> candidateGalaxy = new Stack<Star>();
             Stack<Star> PU = new Stack<Star>();
+            
             //if(numStars % 2 != 0)
             //{
             //    loopCount--;
@@ -47,18 +48,20 @@ namespace GalaxyQuest
             for (int i = 0; i < numStars; i++)
             {
                 string star = Console.ReadLine();
-                string[] starCoordinates = variables.Split(' ');
+                string[] starCoordinates = star.Split(' ');
 
                 PU.Push(new Star(int.Parse(starCoordinates[0]),int.Parse(starCoordinates[1])));
             }
+            List<Star> immutablePU = new List<Star>(PU);
             Star CandidateStar = getMajorityGalaxyStarCandidate(PU);
             Console.WriteLine("Candidate Star - x=" + CandidateStar.x + " y=" + CandidateStar.y);
 
+            hasMajorityGalaxy(CandidateStar, immutablePU);
 
             Console.Read();
         }
 
-        static void hasMajorityGalaxy(Star Candidate, Stack<Star> PU)
+        static void hasMajorityGalaxy(Star Candidate, List<Star> PU)
         {
             Stack<Star> toReturn = new Stack<Star>();
             //toReturn.Push(Candidate);
