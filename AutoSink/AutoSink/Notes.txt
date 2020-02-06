@@ -1,0 +1,1 @@
+﻿I think I should do this with a matrix, as then the matrix can store the edge weight easier.
