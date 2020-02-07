@@ -29,9 +29,11 @@ namespace AutoSink
             //This is an adjecency list of edges from parent to child nodes
             private Dictionary<string, HashSet<string>> edgeList = new Dictionary<string, HashSet<string>>();
             private Dictionary<string, HashSet<string>> reverseList = new Dictionary<string, HashSet<string>>();
+            public Dictionary<string, int> Toll = new Dictionary<string, int>();
             //public Dictionary<string, int>
             //public Dictionary<string, int> PreList = new Dictionary<string, int>();
-            public List<string> PostList = new List<string>();
+            public List<string> PostList;
+            private Dictionary<string, int> postDict;
             private int clock = 1;
             public int numCities
             {
@@ -66,11 +68,12 @@ namespace AutoSink
 
             }
 
-            public void doDFS(string source)
+            private void doDFS(string source)
             {
                 Dictionary<string, bool> visited = new Dictionary<string, bool>();
-                
-                foreach(string city in edgeList.Keys)
+                this.PostList = new List<string>();
+                this.postDict = new Dictionary<string, int>();
+                foreach (string city in edgeList.Keys)
                 {
                     if (!visited.ContainsKey(city))
                     {
@@ -78,17 +81,22 @@ namespace AutoSink
                     }
                 }
                 recursiveDFS(source, visited);
+                for(int i = 0; i < PostList.Count; i++)
+                {
+                    postDict.Add(PostList[i], i);
+                }
             }
             private void recursiveDFS(string root, Dictionary<string, bool> visited)
             {
                 visited[root] = true;
-                foreach(string child in edgeList[root])
-                {
-                    if (!visited[child])
+                if(edgeList.ContainsKey(root))
+                    foreach(string child in edgeList[root])
                     {
-                        recursiveDFS(child, visited);
+                        if (!visited.ContainsKey(child) || !visited[child])
+                        {
+                            recursiveDFS(child, visited);
+                        }
                     }
-                }
                 PostList.Add(root);
             }
 
@@ -115,6 +123,44 @@ namespace AutoSink
                 sb.Append("}");
                 return sb.ToString();
             }
+            public int tripCost(string source, string sink)
+            {
+                this.doDFS(source);
+                int cost = 0;
+                if (source == sink)
+                    return 0;
+                else
+                {
+                    
+                    string current = sink;
+                    while(current != source)
+                    {
+                        cost += Toll[current];
+                        int minToll = int.MaxValue;
+                        string minCity = source;
+                        if (!reverseList.ContainsKey(current))
+                            return int.MaxValue;
+                        foreach (string city in reverseList[current])
+                        {
+                            if (postDict.ContainsKey(city) && postDict[city] < postDict[source])
+                            {
+                                if (Toll[city] < minToll)
+                                {
+                                    minToll = Toll[city];
+                                    minCity = city;
+                                }
+                            }
+                        }
+                        current = minCity;
+
+                        
+                    }
+                    if (current == source)
+                        return cost;
+                }
+                
+                return int.MaxValue;
+            }
         }
 
         static void Main(string[] args)
@@ -122,15 +168,16 @@ namespace AutoSink
             string n = Console.ReadLine();
             
             int numCities = int.Parse(n);
-            Dictionary<string, int> cityTolls = new Dictionary<string, int>();
+            Graph map = new Graph(numCities);
+            
             for(int i = 0; i < numCities; i++)
             {
                 string[] cityData = Console.ReadLine().Split(' ');
-                cityTolls.Add(cityData[0], int.Parse(cityData[1]));
+                map.Toll.Add(cityData[0], int.Parse(cityData[1]));
             }
 
             int numHighways = int.Parse(Console.ReadLine());
-            Graph map = new Graph(numCities);
+            
             for(int i = 0; i < numHighways; i++)
             {
                 string[] edge = Console.ReadLine().Split(' ');
@@ -138,11 +185,29 @@ namespace AutoSink
             }
 
             int numTrips = int.Parse(Console.ReadLine());
+            List<int> TripCost = new List<int>();
+            for (int i = 0; i < numTrips; i++)
+            {
+                string[] cities = Console.ReadLine().Split(' ');
+                TripCost.Add(map.tripCost(cities[0], cities[1]));
+            }
+
+            for (int i = 0; i < TripCost.Count; i++)
+            {
+                if (TripCost[i] == int.MaxValue)
+                {
+                    Console.WriteLine("NO");
+                }
+                else
+                {
+                    Console.WriteLine(TripCost[i]);
+                }
+            }
 
 
 
-            Console.Write(map.toDOT());
-            Console.Read();
+            //Console.Write(map.toDOT());
+            //Console.Read();
         }
     }
 }
