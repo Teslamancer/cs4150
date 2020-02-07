@@ -34,7 +34,7 @@ namespace AutoSink
             //public Dictionary<string, int> PreList = new Dictionary<string, int>();
             public List<string> PostList;
             private Dictionary<string, int> postDict;
-            private int clock = 1;
+            //private int clock = 1;
             public int numCities
             {
                 get; private set;
@@ -129,31 +129,41 @@ namespace AutoSink
                 int cost = 0;
                 if (source == sink)
                     return 0;
+                else if (!postDict.ContainsKey(sink))
+                    return int.MaxValue;
+                else if (reverseList[sink].Contains(source))
+                    return Toll[sink];
                 else
                 {
-                    
+
                     string current = sink;
-                    while(current != source)
+                    while (current != source)
                     {
+                        if (!Toll.ContainsKey(current))
+                            return int.MaxValue;
                         cost += Toll[current];
                         int minToll = int.MaxValue;
                         string minCity = source;
-                        if (!reverseList.ContainsKey(current))
-                            return int.MaxValue;
-                        foreach (string city in reverseList[current])
+                        if (reverseList.ContainsKey(current))
                         {
-                            if (postDict.ContainsKey(city) && postDict[city] < postDict[source])
+
+                            foreach (string city in reverseList[current])
                             {
-                                if (Toll[city] < minToll)
+                                if (postDict.ContainsKey(city) && postDict[city] < postDict[source])
                                 {
-                                    minToll = Toll[city];
-                                    minCity = city;
+                                    if (Toll[city] < minToll)
+                                    {
+                                        minToll = Toll[city];
+                                        minCity = city;
+                                    }
                                 }
                             }
+
                         }
+
                         current = minCity;
 
-                        
+
                     }
                     if (current == source)
                         return cost;
@@ -183,7 +193,6 @@ namespace AutoSink
                 string[] edge = Console.ReadLine().Split(' ');
                 map.addEdge(edge[0],edge[1]);
             }
-
             int numTrips = int.Parse(Console.ReadLine());
             List<int> TripCost = new List<int>();
             for (int i = 0; i < numTrips; i++)
@@ -207,7 +216,7 @@ namespace AutoSink
 
 
             //Console.Write(map.toDOT());
-            //Console.Read();
+            Console.Read();
         }
     }
 }

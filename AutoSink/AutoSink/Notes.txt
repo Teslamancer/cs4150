@@ -1,1 +1,18 @@
-﻿I think I should do this with a matrix, as then the matrix can store the edge weight easier.
+﻿Test Cases:
+
+6
+testA 1
+testB 50
+testC 1
+testD 1
+testE 1
+testF 5
+6
+testA testB
+testB testF
+testA testE
+testE testD
+testD testC
+testC testF
+1
+testA testF
