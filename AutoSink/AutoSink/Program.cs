@@ -27,9 +27,10 @@ namespace AutoSink
         class Graph
         {
             //This is an adjecency list of edges from parent to child nodes
-            //private Dictionary<string, HashSet<string>> edgeList = new Dictionary<string, HashSet<string>>();
+            private Dictionary<string, HashSet<string>> edgeList = new Dictionary<string, HashSet<string>>();
+            private Dictionary<string, HashSet<string>> reverseList = new Dictionary<string, HashSet<string>>();
             //public Dictionary<string, int>
-            public Dictionary<string, int> PreList = new Dictionary<string, int>();
+            //public Dictionary<string, int> PreList = new Dictionary<string, int>();
             public List<string> PostList = new List<string>();
             private int clock = 1;
             public int numCities
@@ -52,6 +53,17 @@ namespace AutoSink
                     edgeList.Add(Source, new HashSet<string>());
                     edgeList[Source].Add(Terminal);
                 }
+
+                if (reverseList.ContainsKey(Terminal))
+                {
+                    reverseList[Terminal].Add(Source);
+                }
+                else
+                {
+                    reverseList.Add(Terminal, new HashSet<string>());
+                    reverseList[Terminal].Add(Source);
+                }
+
             }
 
             public void doDFS(string source)
@@ -70,7 +82,6 @@ namespace AutoSink
             private void recursiveDFS(string root, Dictionary<string, bool> visited)
             {
                 visited[root] = true;
-                PreList.Add(root, clock++);
                 foreach(string child in edgeList[root])
                 {
                     if (!visited[child])
@@ -78,7 +89,7 @@ namespace AutoSink
                         recursiveDFS(child, visited);
                     }
                 }
-                PostList.Add(root, clock++);
+                PostList.Add(root);
             }
 
             public string toDOT()
