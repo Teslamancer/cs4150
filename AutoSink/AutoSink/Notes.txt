@@ -16,3 +16,31 @@ testD testC
 testC testF
 1
 testA testF
+
+4
+Sourceville 5
+SinkCity 10
+Easton 20
+Weston 15
+4
+Sourceville Easton
+Sourceville Weston
+Weston SinkCity
+Easton SinkCity
+16
+Sourceville Sourceville
+Sourceville Weston
+Sourceville Easton
+Sourceville SinkCity
+Easton SinkCity
+Easton Easton
+Easton Sourceville
+Easton Weston
+Weston Weston
+Weston Sourceville
+Weston SinkCity
+Weston Easton
+SinkCity SinkCity
+SinkCity Weston
+SinkCity Easton
+SinkCity Sourceville
