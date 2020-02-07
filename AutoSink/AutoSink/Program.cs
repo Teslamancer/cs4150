@@ -26,12 +26,15 @@ namespace AutoSink
         //}
         class Graph
         {
-            //This is an adjecency list of edges from parent to child nodes
-            //private Dictionary<string, HashSet<string>> edgeList = new Dictionary<string, HashSet<string>>();
-            //public Dictionary<string, int>
-            public Dictionary<string, int> PreList = new Dictionary<string, int>();
-            public List<string> PostList = new List<string>();
-            private int clock = 1;
+
+            int[,] matrix;
+            List<string> PostList = new List<string>();
+            public Dictionary<string, int> IndexForName = new Dictionary<string, int>();
+            public Dictionary<int, string> NameFromIndex = new Dictionary<int, string>();
+            //List<string> Topological;
+
+            public Dictionary<string, int> Toll = new Dictionary<string, int>();
+            //private int clock = 1;
             public int numCities
             {
                 get; private set;
@@ -39,18 +42,17 @@ namespace AutoSink
 
             public Graph(int numVertices)
             {
-                this.numCities = numVertices;
+                numCities = numVertices;
+                matrix = new int[numVertices, numVertices];
             }
             public void addEdge(string Source, string Terminal)
             {
-                if (edgeList.ContainsKey(Source))
+                if (IndexForName.ContainsKey(Source))
                 {
-                    edgeList[Source].Add(Terminal);
-                }
-                else
-                {
-                    edgeList.Add(Source, new HashSet<string>());
-                    edgeList[Source].Add(Terminal);
+                    if (IndexForName.ContainsKey(Terminal))
+                    {
+                        matrix[IndexForName[Source], IndexForName[Terminal]] = Toll[Terminal];
+                    }
                 }
             }
 
@@ -58,7 +60,7 @@ namespace AutoSink
             {
                 Dictionary<string, bool> visited = new Dictionary<string, bool>();
                 
-                foreach(string city in edgeList.Keys)
+                foreach(string city in IndexForName.Keys)
                 {
                     if (!visited.ContainsKey(city))
                     {
@@ -66,44 +68,78 @@ namespace AutoSink
                     }
                 }
                 recursiveDFS(source, visited);
+                //PostList.Reverse();
+
             }
             private void recursiveDFS(string root, Dictionary<string, bool> visited)
             {
                 visited[root] = true;
-                PreList.Add(root, clock++);
-                foreach(string child in edgeList[root])
-                {
-                    if (!visited[child])
+                //PreList.Add(root, clock++);
+                if(IndexForName.ContainsKey(root))
+                    for(int i=0;i<this.numCities;i++)
                     {
-                        recursiveDFS(child, visited);
+                        if (!visited.ContainsKey(NameFromIndex[i]) || !visited[NameFromIndex[i]])
+                        {
+                            recursiveDFS(NameFromIndex[i], visited);
+                        }
                     }
-                }
-                PostList.Add(root, clock++);
+                PostList.Add(root);
             }
 
-            public string toDOT()
+            public int tripCost(string source, string sink)
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("digraph G {\n");
-                foreach (string parent in edgeList.Keys)
+
+                int cost = 0;
+                bool beginadd = false;
+                if (source == sink)
+                    return 0;
+                for(int i = 0; i < PostList.Count; i++)
                 {
-                    if (!parent.Equals(""))
+                    if (PostList[i] == sink)
                     {
-                        sb.Append('\"' + parent + '\"');
-                        sb.Append(" -> {");
-                        foreach (string child in edgeList[parent])
-                        {
-                            if (!child.Equals(""))
-                            {
-                                sb.Append('\"' + child + '\"');
-                            }
-                        }
-                        sb.Append("}\n");
+                        beginadd = true;
+                        cost += this.Toll[sink];
+                        continue;
+                    }
+                    if (PostList[i] == source)
+                    {
+                        beginadd = false;
+                        break;
+                    }
+                    if (beginadd)
+                    {
+                        cost += this.Toll[PostList[i]];
                     }
                 }
-                sb.Append("}");
-                return sb.ToString();
+                if (beginadd)
+                    return int.MaxValue;
+                else
+                    return cost;
             }
+
+            //public string toDOT()
+            //{
+            //    StringBuilder sb = new StringBuilder();
+            //    sb.Append("digraph G {\n");
+            //    foreach (string parent in IndexForName.Keys)
+            //    {
+            //        if (!parent.Equals(""))
+            //        {
+            //            sb.Append('\"' + parent + '\"');
+            //            sb.Append(" -> {");
+            //            foreach (string child in matrix[parent].Keys)
+            //            {
+            //                if (!child.Equals(""))
+            //                {
+            //                    sb.Append('\"' + child + '\"');
+            //                }
+            //            }
+            //            sb.Append("}\n");
+            //        }
+            //    }
+            //    sb.Append("}");
+            //    return sb.ToString();
+            //}
         }
 
         static void Main(string[] args)
@@ -111,26 +147,47 @@ namespace AutoSink
             string n = Console.ReadLine();
             
             int numCities = int.Parse(n);
-            Dictionary<string, int> cityTolls = new Dictionary<string, int>();
-            for(int i = 0; i < numCities; i++)
+            //Dictionary<string, int> cityTolls = new Dictionary<string, int>();
+            Graph map = new Graph(numCities);
+            for (int i = 0; i < numCities; i++)
             {
                 string[] cityData = Console.ReadLine().Split(' ');
-                cityTolls.Add(cityData[0], int.Parse(cityData[1]));
+                map.Toll.Add(cityData[0], int.Parse(cityData[1]));
+                map.IndexForName.Add(cityData[0], i);
+                map.NameFromIndex.Add(i, cityData[0]);
             }
 
             int numHighways = int.Parse(Console.ReadLine());
-            Graph map = new Graph(numCities);
+            
             for(int i = 0; i < numHighways; i++)
             {
                 string[] edge = Console.ReadLine().Split(' ');
                 map.addEdge(edge[0],edge[1]);
             }
-
+            
             int numTrips = int.Parse(Console.ReadLine());
+            List<int> TripCost = new List<int>();
+            for(int i = 0; i < numTrips; i++)
+            {
+                string[] cities = Console.ReadLine().Split(' ');
+                map.doDFS(cities[0]);
+                TripCost.Add(map.tripCost(cities[0], cities[1]));
+            }
+
+            for(int i = 0; i < TripCost.Count; i++)
+            {
+                if (TripCost[i] == int.MaxValue)
+                {
+                    Console.WriteLine("NO");
+                }
+                else
+                {
+                    Console.WriteLine(TripCost[i]);
+                }
+            }
 
 
-
-            Console.Write(map.toDOT());
+            //Console.Write(map.toDOT());
             Console.Read();
         }
     }
