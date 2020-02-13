@@ -1,23 +1,45 @@
-﻿10
+﻿6
 A
 B
 C
 D
 E
 F
-G
-X
-Y
-Z
-9
+6
 A B
-A X
-B C
-C D
-D E
-D Y
-E F
-F G
-F Z
+A C
+B D
+B G
+C E
+C F
 1
 A
+
+
+3
+Cassandra
+Alberforth
+Buttrick
+1
+Cassandra Alberforth
+3
+Alberforth
+Cassandra
+Buttrick
+
+5
+Cam
+Art
+Edy
+Bea
+Dan
+3
+Bea Edy
+Dan Bea
+Art Dan
+5
+Dan
+Cam
+Art
+Edy
+Bea
