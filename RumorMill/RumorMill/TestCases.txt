@@ -1,0 +1,23 @@
+﻿10
+A
+B
+C
+D
+E
+F
+G
+X
+Y
+Z
+9
+A B
+A X
+B C
+C D
+D E
+D Y
+E F
+F G
+F Z
+1
+A

@@ -131,43 +131,13 @@ namespace RumorMill
                 sb.Append(starter + " ");
                 Dictionary<string, bool> visited = new Dictionary<string, bool>();
                 visited.Add(starter, true);
-                List<string> dayOneFriends = new List<string>();
-                if (edgeList.ContainsKey(starter))
+                
+                foreach(string student in BFS(starter, visited))
                 {
-                    foreach(string friend in edgeList[starter])
-                    {
-                        if (!visited.ContainsKey(friend))
-                        {
-                            visited.Add(friend, true);
-                            dayOneFriends.Add(friend);
-                        }
-                    }
-                    dayOneFriends.Sort();
-                    foreach(string friend in dayOneFriends)
-                    {
-                        sb.Append(friend + " ");
-                    }
-
-                    List<string> dayTwoFriends = new List<string>();
-                    foreach(string friendOne in dayOneFriends)
-                    {
-                        foreach (string friend in edgeList[friendOne])
-                        {
-                            if (!visited.ContainsKey(friend))
-                            {
-                                visited.Add(friend, true);
-                                dayTwoFriends.Add(friend);
-                            }
-                        }
-                        dayTwoFriends.Sort();
-                        foreach (string friend in dayTwoFriends)
-                        {
-                            sb.Append(friend + " ");
-                        }
-
-                    }
-
+                    sb.Append(student + " ");
                 }
+                
+
                 List<string> remainingStudents = new List<string>();
                 foreach (string student in Students)
                 {
@@ -178,20 +148,45 @@ namespace RumorMill
                     }
                 }
                 remainingStudents.Sort();
-                for(int i = 0; i < remainingStudents.Count; i++)
+                foreach(string student in remainingStudents)
                 {
-                    if (i == remainingStudents.Count - 1)
-                    {
-                        sb.Append(remainingStudents[i]);
-                    }
-                    else
-                    {
-                        sb.Append(remainingStudents[i]+" ");
-                    }
+                   sb.Append(student +" ");
+                    
                 }
+                sb.Remove(sb.Length - 1, 1);
 
 
                 return sb.ToString();
+            }
+
+            private List<string> BFS(string root, Dictionary<string, bool> visited)
+            {
+                List<string> toReturn = new List<string>();
+
+                if (this.edgeList.ContainsKey(root))
+                {
+                    List<string> childList = new List<string>();
+                    foreach(string child in edgeList[root])
+                    {
+                        if(!visited.ContainsKey(child) || visited[child] == false)
+                        {
+                            childList.Add(child);
+                            visited.Add(child, true);
+                            visited[child] = true;
+                        }
+                    }
+                    childList.Sort();
+                    toReturn.AddRange(childList);
+                    foreach(string child in childList)
+                    {
+                        toReturn.AddRange(BFS(child, visited));
+                    }
+                    return toReturn;
+                }
+                else
+                {
+                    return toReturn;
+                }
             }
         }
 
