@@ -125,22 +125,35 @@ namespace AutoSink
             }
             public int tripCost(string source, string sink)
             {
-                this.doDFS(source);
+                //this.doDFS(source);
                 int cost = 0;
+                this.reverseList = new Dictionary<string, HashSet<string>>();
+                foreach(string root in edgeList.Keys)
+                {
+                    foreach (string child in edgeList[root])
+                    {
+                        if (reverseList.ContainsKey(child))
+                        {
+                            reverseList[child].Add(root);
+                        }
+                        else
+                        {
+                            reverseList.Add(child, new HashSet<string>());
+                            reverseList[child].Add(root);
+                        }
+                    }
+                        
+                }
                 if (source == sink)
                     return 0;
-                else if (!postDict.ContainsKey(sink))
-                    return int.MaxValue;
-                else if (reverseList[sink].Contains(source))
-                    return Toll[sink];
+                //else if (!postDict.ContainsKey(sink))
+                //    return int.MaxValue;
                 else
                 {
 
                     string current = sink;
                     while (current != source)
                     {
-                        if (!Toll.ContainsKey(current))
-                            return int.MaxValue;
                         cost += Toll[current];
                         int minToll = int.MaxValue;
                         string minCity = source;
@@ -149,14 +162,16 @@ namespace AutoSink
 
                             foreach (string city in reverseList[current])
                             {
-                                if (postDict.ContainsKey(city) && postDict[city] < postDict[source])
+                                //if (postDict.ContainsKey(city) && postDict[city] < postDict[source])
+                                // {
+                                if (city == source)
+                                    return cost;
+                                if (Toll[city] < minToll)
                                 {
-                                    if (Toll[city] < minToll)
-                                    {
-                                        minToll = Toll[city];
-                                        minCity = city;
-                                    }
+                                    minToll = Toll[city];
+                                    minCity = city;
                                 }
+                               // }
                             }
 
                         }
@@ -165,8 +180,8 @@ namespace AutoSink
 
 
                     }
-                    if (current == source)
-                        return cost;
+                    //if (current == source)
+                    //    return cost;
                 }
                 
                 return int.MaxValue;
