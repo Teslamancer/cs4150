@@ -128,9 +128,9 @@ namespace RumorMill
             public string generateReport(string starter)
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append(starter + " ");
+                //sb.Append(starter + " ");
                 Dictionary<string, bool> visited = new Dictionary<string, bool>();
-                visited.Add(starter, true);
+                //visited.Add(starter, true);
                 
                 foreach(string student in BFS(starter, visited))
                 {
@@ -161,32 +161,66 @@ namespace RumorMill
 
             private List<string> BFS(string root, Dictionary<string, bool> visited)
             {
-                List<string> toReturn = new List<string>();
+                //List<List<string>> toReturn = new List<List<string>>();
 
-                if (this.edgeList.ContainsKey(root))
+                Dictionary<string, int> level = new Dictionary<string, int>();
+                Queue<string> que = new Queue<string>();
+                que.Enqueue(root);
+                level.Add(root, 0);
+                visited.Add(root, true);
+                while(que.Count > 0)
                 {
-                    List<string> childList = new List<string>();
-                    foreach(string child in edgeList[root])
-                    {
-                        if(!visited.ContainsKey(child) || visited[child] == false)
+                    root = que.Peek();
+                    que.Dequeue();
+                    if(edgeList.ContainsKey(root))
+                        foreach(string child in edgeList[root])
                         {
-                            childList.Add(child);
-                            visited.Add(child, true);
-                            visited[child] = true;
+                            if (!visited.ContainsKey(child))
+                            {
+                                que.Enqueue(child);
+                                if (level.ContainsKey(root))
+                                {
+                                    if (level.ContainsKey(child))
+                                    {
+                                        if(level[child] > level[root] + 1)
+                                        {
+                                            level[child] = level[root] + 1;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        level.Add(child, level[root] + 1);
+                                    }
+                                }
+                                visited.Add(child, true);
+                                    
+                            }
                         }
-                    }
-                    childList.Sort();
-                    toReturn.AddRange(childList);
-                    foreach(string child in childList)
-                    {
-                        toReturn.AddRange(BFS(child, visited));
-                    }
-                    return toReturn;
                 }
-                else
+                Dictionary<int, List<string>> levelToStrings = new Dictionary<int, List<string>>();
+                foreach(string student in level.Keys)
                 {
-                    return toReturn;
+                    if (levelToStrings.ContainsKey(level[student]))
+                    {
+                        levelToStrings[level[student]].Add(student);
+                    }
+                    else
+                    {
+                        levelToStrings.Add(level[student], new List<string>());
+                        levelToStrings[level[student]].Add(student);
+                    }
                 }
+                foreach (int x in levelToStrings.Keys)
+                    levelToStrings[x].Sort();
+                List<string> toReturn = new List<string>();
+                for(int i = 0; i < levelToStrings.Count; i++)
+                {
+                    for(int x = 0; x < levelToStrings[i].Count; x++)
+                    {
+                        toReturn.Add(levelToStrings[i][x]);
+                    }
+                }
+                return toReturn;
             }
         }
 
