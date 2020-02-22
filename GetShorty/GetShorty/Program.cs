@@ -37,67 +37,38 @@ namespace GetShorty
             //private int clock = 1;
             private class PriorityQueue
             {
-                private SortedDictionary<float, Queue<int>> pq;
+                private SortedList<float, int> items;
+                private Dictionary<int, float> previousWeight;
                 private HashSet<int> seen;
+
+                public int Count
+                {
+                    get;private set;
+                }
                 
                 public bool isEmpty()//TODO: Reimplement this to be fast
                 {
-                    if(pq.Keys.Count != 0)
-                    {
-                        foreach(float f in pq.Keys)
-                        {
-                            foreach(int intersection in pq[f])
-                            {
-                                if (!seen.Contains(intersection))
-                                    return false;
-                            }
-                        }
-                    }
-                    return true;
+                    return this.Count == 0;
                 }
 
                 public PriorityQueue()
                 {
-                    this.pq = new SortedDictionary<float, Queue<int>>();
+                    this.items = new SortedList<float, int>();
+                    this.previousWeight = new Dictionary<int, float>();
                     this.seen = new HashSet<int>();
                 }
 
                 public int deleteMax()
                 {
-                    var keys = pq.Keys;
-                    float minWeight = keys.Last();
-                    int minIntersection = pq[keys.Last()].Dequeue();
-                    while (seen.Contains(minIntersection))
-                    {
-                        if (pq[keys.Last()].Count == 0)
-                        {
-                            pq.Remove(minWeight);
-                        }
-                        keys = pq.Keys;
-                        minWeight = keys.Last();
-                        if (pq.Count != 0 && pq[keys.Last()].Count != 0)
-                            minIntersection = pq[keys.Last()].Dequeue();
-                        else if (pq.Count != 0)
-                            pq.Remove(keys.Last());                                                
-                    }
-                    
-                    seen.Add(minIntersection);
-                    if (pq[keys.Last()].Count == 0)
-                        pq.Remove(keys.Last());
-                    return minIntersection;
+                    seen.Add(items[items.Keys.Last()]);
+                    items.Remove(items.Keys.Last());
                 }
 
                 public void insertOrChange(int intersection, float distance)
                 {
-                    if (pq.ContainsKey(distance))
+                    if (previousWeight.ContainsKey(intersection) && !seen.Contains(intersection))
                     {
-                        pq[distance].Enqueue(intersection);
-                    }
-                    else
-                    {
-                        Queue<int> newQueue = new Queue<int>();
-                        newQueue.Enqueue(intersection);
-                        pq.Add(distance, newQueue);
+
                     }
                 }
             }
