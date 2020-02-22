@@ -26,201 +26,144 @@ namespace GetShorty
         //}
         class Graph
         {
-            //This is an adjecency list of edges from parent to child nodes
-            private Dictionary<string, HashSet<string>> edgeList = new Dictionary<string, HashSet<string>>();
-            public List<string> Students = new List<string>();
+            //This is an adjecency matrix of edges from parent to child nodes
+            private float[,] matrix;
             //private Dictionary<string, HashSet<string>> reverseList = new Dictionary<string, HashSet<string>>();
             //public Dictionary<string, int> Toll = new Dictionary<string, int>();
             //public Dictionary<string, int>
             //public Dictionary<string, int> PreList = new Dictionary<string, int>();
-            public List<string> PostList;
-            private Dictionary<string, int> postDict;
+            //public List<string> PostList;
+            //private Dictionary<string, int> postDict;
             //private int clock = 1;
-            public int numStudents
+            private class PriorityQueue
+            {
+                private SortedDictionary<float, Queue<int>> pq;
+                private HashSet<int> seen;
+                
+                public bool isEmpty()//TODO: Reimplement this to be fast
+                {
+                    if(pq.Keys.Count != 0)
+                    {
+                        foreach(float f in pq.Keys)
+                        {
+                            foreach(int intersection in pq[f])
+                            {
+                                if (!seen.Contains(intersection))
+                                    return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+
+                public PriorityQueue()
+                {
+                    this.pq = new SortedDictionary<float, Queue<int>>();
+                    this.seen = new HashSet<int>();
+                }
+
+                public int deleteMax()
+                {
+                    var keys = pq.Keys;
+                    float minWeight = keys.Last();
+                    int minIntersection = pq[keys.Last()].Dequeue();
+                    while (seen.Contains(minIntersection))
+                    {
+                        if (pq[keys.Last()].Count == 0)
+                        {
+                            pq.Remove(minWeight);
+                        }
+                        keys = pq.Keys;
+                        minWeight = keys.Last();
+                        if (pq.Count != 0 && pq[keys.Last()].Count != 0)
+                            minIntersection = pq[keys.Last()].Dequeue();
+                        else if (pq.Count != 0)
+                            pq.Remove(keys.Last());                                                
+                    }
+                    
+                    seen.Add(minIntersection);
+                    if (pq[keys.Last()].Count == 0)
+                        pq.Remove(keys.Last());
+                    return minIntersection;
+                }
+
+                public void insertOrChange(int intersection, float distance)
+                {
+                    if (pq.ContainsKey(distance))
+                    {
+                        pq[distance].Enqueue(intersection);
+                    }
+                    else
+                    {
+                        Queue<int> newQueue = new Queue<int>();
+                        newQueue.Enqueue(intersection);
+                        pq.Add(distance, newQueue);
+                    }
+                }
+            }
+            public int numIntersections
             {
                 get; private set;
             }
 
             public Graph(int numVertices)
             {
-                this.numStudents = numVertices;
-            }
-            public void addEdge(string Source, string Terminal)
-            {
-                if (edgeList.ContainsKey(Source))
+                this.numIntersections = numVertices;
+                this.matrix = new float[numVertices, numVertices];
+                for(int i = 0; i < numVertices; i++)
                 {
-                    edgeList[Source].Add(Terminal);
-                }
-                else
-                {
-                    edgeList.Add(Source, new HashSet<string>());
-                    edgeList[Source].Add(Terminal);
-                }
-
-                //if (reverseList.ContainsKey(Terminal))
-                //{
-                //    reverseList[Terminal].Add(Source);
-                //}
-                //else
-                //{
-                //    reverseList.Add(Terminal, new HashSet<string>());
-                //    reverseList[Terminal].Add(Source);
-                //}
-
-            }
-
-            private void doDFS(string source)
-            {
-                Dictionary<string, bool> visited = new Dictionary<string, bool>();
-                this.PostList = new List<string>();
-                this.postDict = new Dictionary<string, int>();
-                foreach (string city in edgeList.Keys)
-                {
-                    if (!visited.ContainsKey(city))
+                    for(int x = 0; x < numVertices; x++)
                     {
-                        visited.Add(city, false);
+                        matrix[i, x] = float.NaN;
                     }
                 }
-                recursiveDFS(source, visited);
-                for (int i = 0; i < PostList.Count; i++)
-                {
-                    postDict.Add(PostList[i], i);
-                }
             }
-            private void recursiveDFS(string root, Dictionary<string, bool> visited)
+            public void addEdge(int v1, int v2, float weight)
             {
-                visited[root] = true;
-                if (edgeList.ContainsKey(root))
-                    foreach (string child in edgeList[root])
-                    {
-                        if (!visited.ContainsKey(child) || !visited[child])
-                        {
-                            recursiveDFS(child, visited);
-                        }
-                    }
-                PostList.Add(root);
+                this.matrix[v1, v2] = weight;
+                this.matrix[v2, v1] = weight;
             }
 
-            public string toDOT()
+            public float findMaxSize()
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("digraph G {\n");
-                foreach (string parent in edgeList.Keys)
+                return dijkstra();
+                
+                 
+            }
+
+            private float dijkstra()
+            {
+                Dictionary<int, int> prev = new Dictionary<int, int>();
+                Dictionary<int, float> dist = new Dictionary<int, float>();
+                for (int i = 1; i < numIntersections; i++)
                 {
-                    if (!parent.Equals(""))
+                    dist.Add(i, float.MinValue);
+                }
+                dist[0] = 1;
+
+                PriorityQueue pq = new PriorityQueue();
+                pq.insertOrChange(0, 1);
+
+                //float MaxSize = 1;
+
+                while (!pq.isEmpty())
+                {
+                    int currentIntersection = pq.deleteMax();
+                    for (int i = 0; i < numIntersections; i++)
                     {
-                        sb.Append('\"' + parent + '\"');
-                        sb.Append(" -> {");
-                        foreach (string child in edgeList[parent])
+                        float currentWeight = matrix[currentIntersection, i];
+                        if (!float.IsNaN(currentWeight))
                         {
-                            if (!child.Equals(""))
+                            if (dist[i] < dist[currentIntersection] * currentWeight)
                             {
-                                sb.Append('\"' + child + '\"');
+                                dist[i] = dist[currentIntersection] * currentWeight;
+                                prev[i] = currentIntersection;
+                                pq.insertOrChange(i, dist[i]);
                             }
                         }
-                        sb.Append("}\n");
                     }
                 }
-                sb.Append("}");
-                return sb.ToString();
-            }
-
-            public string generateReport(string starter)
-            {
-                StringBuilder sb = new StringBuilder();
-                //sb.Append(starter + " ");
-                Dictionary<string, bool> visited = new Dictionary<string, bool>();
-                //visited.Add(starter, true);
-
-                foreach (string student in BFS(starter, visited))
-                {
-                    sb.Append(student + " ");
-                }
-
-
-                List<string> remainingStudents = new List<string>();
-                foreach (string student in Students)
-                {
-                    if (!visited.ContainsKey(student))
-                    {
-                        visited.Add(student, true);
-                        remainingStudents.Add(student);
-                    }
-                }
-                remainingStudents.Sort();
-                foreach (string student in remainingStudents)
-                {
-                    sb.Append(student + " ");
-
-                }
-                sb.Remove(sb.Length - 1, 1);
-
-
-                return sb.ToString();
-            }
-
-            private List<string> BFS(string root, Dictionary<string, bool> visited)
-            {
-                //List<List<string>> toReturn = new List<List<string>>();
-
-                Dictionary<string, int> level = new Dictionary<string, int>();
-                Queue<string> que = new Queue<string>();
-                que.Enqueue(root);
-                level.Add(root, 0);
-                visited.Add(root, true);
-                while (que.Count > 0)
-                {
-                    root = que.Peek();
-                    que.Dequeue();
-                    if (edgeList.ContainsKey(root))
-                        foreach (string child in edgeList[root])
-                        {
-                            if (!visited.ContainsKey(child))
-                            {
-                                que.Enqueue(child);
-                                if (level.ContainsKey(root))
-                                {
-                                    if (level.ContainsKey(child))
-                                    {
-                                        if (level[child] > level[root] + 1)
-                                        {
-                                            level[child] = level[root] + 1;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        level.Add(child, level[root] + 1);
-                                    }
-                                }
-                                visited.Add(child, true);
-
-                            }
-                        }
-                }
-                Dictionary<int, List<string>> levelToStrings = new Dictionary<int, List<string>>();
-                foreach (string student in level.Keys)
-                {
-                    if (levelToStrings.ContainsKey(level[student]))
-                    {
-                        levelToStrings[level[student]].Add(student);
-                    }
-                    else
-                    {
-                        levelToStrings.Add(level[student], new List<string>());
-                        levelToStrings[level[student]].Add(student);
-                    }
-                }
-                foreach (int x in levelToStrings.Keys)
-                    levelToStrings[x].Sort();
-                List<string> toReturn = new List<string>();
-                for (int i = 0; i < levelToStrings.Count; i++)
-                {
-                    for (int x = 0; x < levelToStrings[i].Count; x++)
-                    {
-                        toReturn.Add(levelToStrings[i][x]);
-                    }
-                }
-                return toReturn;
+                return dist[numIntersections - 1];
             }
         }
 
@@ -231,7 +174,7 @@ namespace GetShorty
             string[] values = n.Split(" ");
             int v1 = int.Parse(values[0]);
             int v2 = int.Parse(values[1]);
-            float weight = int.Parse(values[2]);
+            float weight = float.Parse(values[2]);
             var toReturn = Tuple.Create(v1, v2, weight);
             return toReturn;
         }
@@ -248,7 +191,7 @@ namespace GetShorty
                     break;
                 else
                 {
-                    Graph dungeon = new Graph(numIntersections, numCorridors);
+                    Graph dungeon = new Graph(numIntersections);
                     for (int i = 0; i < numCorridors; i++)
                     {
                         var edgeData = getEdge();
