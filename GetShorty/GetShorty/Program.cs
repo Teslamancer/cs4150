@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace GetShorty
 {
@@ -35,11 +36,34 @@ namespace GetShorty
             //public List<string> PostList;
             //private Dictionary<string, int> postDict;
             //private int clock = 1;
+
+            public class ByWeight : IComparer<Tuple<int, float>>
+            {
+                float xExt, yExt;
+                //x is the tuple already in the set
+                public int Compare(Tuple<int, float> x, Tuple<int, float> y)
+                {
+                    xExt = x.Item2;
+                    yExt = y.Item2;
+
+                    if (xExt > yExt)
+                        return -1;
+                    else if (xExt < yExt)
+                        return 1;
+                    else
+                    {
+                        if (x.Item1 == y.Item1)
+                            return 0;
+                        else
+                            return -1;
+                    }
+                }
+            }
             private class PriorityQueue
             {
-                private SortedList<float, int> items;
+                private SortedSet<Tuple<int, float>> items;
                 private Dictionary<int, float> previousWeight;
-                private HashSet<int> seen;
+                //private HashSet<int> seen;
 
                 public int Count
                 {
@@ -53,23 +77,35 @@ namespace GetShorty
 
                 public PriorityQueue()
                 {
-                    this.items = new SortedList<float, int>();
+                    this.items = new SortedSet<Tuple<int, float>>(new ByWeight());
                     this.previousWeight = new Dictionary<int, float>();
-                    this.seen = new HashSet<int>();
+                    //this.seen = new HashSet<int>();
                 }
 
                 public int deleteMax()
                 {
-                    seen.Add(items[items.Keys.Last()]);
-                    items.Remove(items.Keys.Last());
+                    int maxIntersection = items.Last().Item1;
+                    items.Remove(items.Last());
+                    this.Count--;
+                    return maxIntersection;
                 }
 
                 public void insertOrChange(int intersection, float distance)
                 {
-                    if (previousWeight.ContainsKey(intersection) && !seen.Contains(intersection))
+                    Tuple<int, float> newItem = Tuple.Create(intersection, distance);
+                    if (previousWeight.ContainsKey(intersection) && previousWeight[intersection] != distance)
                     {
-
+                        Tuple<int, float> oldItem = Tuple.Create(intersection, previousWeight[intersection]);
+                        items.Remove(oldItem);
+                        previousWeight[intersection] = distance;
                     }
+                    else
+                    {
+                        previousWeight.Add(intersection, distance);
+                        this.Count++;
+                    }
+                    items.Add(newItem);
+
                 }
             }
             public int numIntersections
@@ -91,8 +127,11 @@ namespace GetShorty
             }
             public void addEdge(int v1, int v2, float weight)
             {
-                this.matrix[v1, v2] = weight;
-                this.matrix[v2, v1] = weight;
+                if(float.IsNaN(this.matrix[v1, v2]) || this.matrix[v1, v2] < weight)
+                {
+                    this.matrix[v1, v2] = weight;
+                    this.matrix[v2, v1] = weight;
+                }
             }
 
             public float findMaxSize()
@@ -105,12 +144,13 @@ namespace GetShorty
             private float dijkstra()
             {
                 Dictionary<int, int> prev = new Dictionary<int, int>();
-                Dictionary<int, float> dist = new Dictionary<int, float>();
+                List<float> dist = new List<float>();
+                dist.Add(1);
                 for (int i = 1; i < numIntersections; i++)
                 {
-                    dist.Add(i, float.MinValue);
+                    dist.Add(float.MinValue);
                 }
-                dist[0] = 1;
+                
 
                 PriorityQueue pq = new PriorityQueue();
                 pq.insertOrChange(0, 1);
@@ -152,6 +192,17 @@ namespace GetShorty
         static void Main(string[] args)
         {
             List<float> reports = new List<float>();
+            //StringBuilder sb = new StringBuilder("2 15000\n");
+            //Random r = new Random();
+            //for(int i = 0; i < 15000; i++)
+            //{
+            //    sb.Append("0 1 ");
+            //    double weight = r.NextDouble();
+            //    sb.Append(weight.ToString("0.0000"));
+            //    sb.Append("\n");
+            //}
+            //sb.Append("0 0");
+            //string test = sb.ToString()
             while (true)
             {
                 string n = Console.ReadLine();
