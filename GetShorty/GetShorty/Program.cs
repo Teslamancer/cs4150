@@ -28,14 +28,8 @@ namespace GetShorty
         class Graph
         {
             //This is an adjecency matrix of edges from parent to child nodes
-            private float[,] matrix;
-            //private Dictionary<string, HashSet<string>> reverseList = new Dictionary<string, HashSet<string>>();
-            //public Dictionary<string, int> Toll = new Dictionary<string, int>();
-            //public Dictionary<string, int>
-            //public Dictionary<string, int> PreList = new Dictionary<string, int>();
-            //public List<string> PostList;
-            //private Dictionary<string, int> postDict;
-            //private int clock = 1;
+            //private float[,] matrix;
+            private Dictionary<int, Dictionary<int, float>> edgeList;
 
             public class ByWeight : IComparer<Tuple<int, float>>
             {
@@ -116,32 +110,82 @@ namespace GetShorty
             public Graph(int numVertices)
             {
                 this.numIntersections = numVertices;
-                this.matrix = new float[numVertices, numVertices];
-                for(int i = 0; i < numVertices; i++)
-                {
-                    for(int x = 0; x < numVertices; x++)
-                    {
-                        matrix[i, x] = float.NaN;
-                    }
-                }
+                //this.matrix = new float[numVertices, numVertices];
+                edgeList = new Dictionary<int, Dictionary<int, float>>();
+                //for(int i = 0; i < numVertices; i++)
+                //{
+                //    for(int x = 0; x < numVertices; x++)
+                //    {
+                //        matrix[i, x] = float.NaN;
+                //    }
+                //}
             }
             public void addEdge(int v1, int v2, float weight)
             {
-                if(float.IsNaN(this.matrix[v1, v2]) || this.matrix[v1, v2] < weight)
+                //if(float.IsNaN(this.matrix[v1, v2]) || this.matrix[v1, v2] < weight)
+                //{
+                //    this.matrix[v1, v2] = weight;
+                //    this.matrix[v2, v1] = weight;
+                //}
+                if (edgeList.ContainsKey(v1))
                 {
-                    this.matrix[v1, v2] = weight;
-                    this.matrix[v2, v1] = weight;
+                    if (edgeList[v1].ContainsKey(v2))
+                    {
+                        if (edgeList[v1][v2] > weight)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            edgeList[v1][v2] = weight;
+                            edgeList[v2][v1] = weight;
+                        }
+                    }
+                    else
+                    {
+                        edgeList[v1].Add(v2, weight);                        
+                    }
                 }
+                else
+                {
+                    Dictionary<int, float> v1Dict = new Dictionary<int, float>();
+                    v1Dict.Add(v2, weight);
+                    edgeList.Add(v1, v1Dict);
+                }
+                if (edgeList.ContainsKey(v2))
+                {
+                    if (edgeList[v2].ContainsKey(v1))
+                    {
+                        if (edgeList[v2][v1] > weight)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            edgeList[v1][v2] = weight;
+                            edgeList[v2][v1] = weight;
+                        }
+                    }
+                    else
+                    {
+                        edgeList[v2].Add(v1, weight);
+                    }
+                }
+                else
+                {
+                    
+                    Dictionary<int, float> v2Dict = new Dictionary<int, float>();
+                    v2Dict.Add(v1, weight);
+
+                    
+                    edgeList.Add(v2, v2Dict);
+
+                }
+
+
             }
 
             public float findMaxSize()
-            {
-                return dijkstra();
-                
-                 
-            }
-
-            private float dijkstra()
             {
                 Dictionary<int, int> prev = new Dictionary<int, int>();
                 List<float> dist = new List<float>();
@@ -150,7 +194,7 @@ namespace GetShorty
                 {
                     dist.Add(float.MinValue);
                 }
-                
+
 
                 PriorityQueue pq = new PriorityQueue();
                 pq.insertOrChange(0, 1);
@@ -160,9 +204,9 @@ namespace GetShorty
                 while (!pq.isEmpty())
                 {
                     int currentIntersection = pq.deleteMax();
-                    for (int i = 0; i < numIntersections; i++)
+                    foreach (int i in edgeList[currentIntersection].Keys)
                     {
-                        float currentWeight = matrix[currentIntersection, i];
+                        float currentWeight = edgeList[currentIntersection][i];
                         if (!float.IsNaN(currentWeight))
                         {
                             if (dist[i] < dist[currentIntersection] * currentWeight)
@@ -231,7 +275,7 @@ namespace GetShorty
             }
                         
             //Console.Write(map.toDOT());
-            Console.Read();
+            //Console.Read();
         }
     }
 }
