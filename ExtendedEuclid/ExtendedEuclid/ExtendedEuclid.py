@@ -23,18 +23,23 @@ def inverse(a, N):
 #        break
 #print("7^-1 mod 12= " + inverse(7,12))
 
-#numInverses = 0
-#for i in range(1, 124):
-#    if inverse(i, 124):
-#        numInverses+=1
-#print("Number of positive integers with ")
+numNonInverses = 0
+for i in range(1, 124):
+    if inverse(i, 124) == None:
+        numNonInverses+=1
+print("Number of positive integers with No inverse mod 124 = ")
+print(numNonInverses)
 
-for a in range(1,1000):
-    for b in range(1,1000):
-        if(inverse(a, b)):
-            if(inverse(b,a)):
-                continue
-            else:
-                print(False)
-                break
+#for a in range(1,1000):
+#    for b in range(1,1000):
+#        if(inverse(a, b) != None):
+#            if(inverse(b,a) != None):
+#                continue
+#            else:
+#                print(a)
+#                print("%")
+#                print(b)
+#                break
 
+#print(inverse(1,2))
+#print(inverse(2,1))

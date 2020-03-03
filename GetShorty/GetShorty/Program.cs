@@ -1,14 +1,112 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace GetShorty
 {
     class Program
     {
+        class Kattio
+        {
+            public class NoMoreTokensException : Exception
+            {
+            }
+
+            public class Tokenizer
+            {
+                string[] tokens = new string[0];
+                private int pos;
+                StreamReader reader;
+
+                public Tokenizer(Stream inStream)
+                {
+                    var bs = new BufferedStream(inStream);
+                    reader = new StreamReader(bs);
+                }
+
+                public Tokenizer() : this(Console.OpenStandardInput())
+                {
+                    // Nothing more to do
+                }
+
+                private string PeekNext()
+                {
+                    if (pos < 0)
+                        // pos < 0 indicates that there are no more tokens
+                        return null;
+                    if (pos < tokens.Length)
+                    {
+                        if (tokens[pos].Length == 0)
+                        {
+                            ++pos;
+                            return PeekNext();
+                        }
+                        return tokens[pos];
+                    }
+                    string line = reader.ReadLine();
+                    if (line == null)
+                    {
+                        // There is no more data to read
+                        pos = -1;
+                        return null;
+                    }
+                    // Split the line that was read on white space characters
+                    tokens = line.Split(null);
+                    pos = 0;
+                    return PeekNext();
+                }
+
+                public bool HasNext()
+                {
+                    return (PeekNext() != null);
+                }
+
+                public string Next()
+                {
+                    string next = PeekNext();
+                    if (next == null)
+                        throw new NoMoreTokensException();
+                    ++pos;
+                    return next;
+                }
+            }
+
+
+            public class Scanner : Tokenizer
+            {
+
+                public int NextInt()
+                {
+                    return int.Parse(Next());
+                }
+
+                public long NextLong()
+                {
+                    return long.Parse(Next());
+                }
+
+                public float NextFloat()
+                {
+                    return float.Parse(Next());
+                }
+
+                public double NextDouble()
+                {
+                    return double.Parse(Next());
+                }
+            }
+
+
+            public class BufferedStdoutWriter : StreamWriter
+            {
+                public BufferedStdoutWriter() : base(new BufferedStream(Console.OpenStandardOutput()))
+                {
+                }
+            }
+        }
         //class City
         //{
         //    public string Name
@@ -73,6 +171,7 @@ namespace GetShorty
                 {
                     this.items = new SortedSet<Tuple<int, float>>(new ByWeight());
                     this.previousWeight = new Dictionary<int, float>();
+                    this.Count = 0;
                     //this.seen = new HashSet<int>();
                 }
 
@@ -111,7 +210,7 @@ namespace GetShorty
             {
                 this.numIntersections = numVertices;
                 //this.matrix = new float[numVertices, numVertices];
-                edgeList = new Dictionary<int, Dictionary<int, float>>();
+                edgeList = new Dictionary<int, Dictionary<int, float>>(numVertices*numVertices);
                 //for(int i = 0; i < numVertices; i++)
                 //{
                 //    for(int x = 0; x < numVertices; x++)
@@ -222,37 +321,45 @@ namespace GetShorty
             }
         }
 
-        static Tuple<int, int, float> getEdge()
-        {
+        //static Tuple<int, int, float> getEdge()
+        //{
             
-            string n = Console.ReadLine();
-            string[] values = n.Split(" ");
-            int v1 = int.Parse(values[0]);
-            int v2 = int.Parse(values[1]);
-            float weight = float.Parse(values[2]);
-            var toReturn = Tuple.Create(v1, v2, weight);
-            return toReturn;
-        }
+        //    string n = Console.ReadLine();
+        //    string[] values = n.Split(" ");
+        //    int v1 = int.Parse(values[0]);
+        //    int v2 = int.Parse(values[1]);
+        //    float weight = float.Parse(values[2]);
+        //    var toReturn = Tuple.Create(v1, v2, weight);
+        //    return toReturn;
+        //}
         static void Main(string[] args)
         {
-            List<float> reports = new List<float>();
+            //List<float> reports = new List<float>();
             //StringBuilder sb = new StringBuilder("2 15000\n");
             //Random r = new Random();
-            //for(int i = 0; i < 15000; i++)
+            //for (int i = 0; i < 15000; i++)
             //{
-            //    sb.Append("0 1 ");
+            //    int v1 = r.Next(0, 9999);
+            //    sb.Append(v1);
+            //    sb.Append(" ");
+            //    int v2 = r.Next(0, 9999);
+            //    while(v2 == v1)
+            //        v2 = r.Next(0, 9999);
+            //    sb.Append(v2);
+            //    sb.Append(" ");
             //    double weight = r.NextDouble();
             //    sb.Append(weight.ToString("0.0000"));
             //    sb.Append("\n");
             //}
             //sb.Append("0 0");
-            //string test = sb.ToString()
+            //string test = sb.ToString();
+            Kattio.Scanner io = new Kattio.Scanner();
             while (true)
             {
-                string n = Console.ReadLine();
-                string[] values = n.Split(" ");
-                int numIntersections = int.Parse(values[0]);
-                int numCorridors = int.Parse(values[1]);
+                //string n = Console.ReadLine();
+                //string[] values = n.Split(" ");
+                int numIntersections = io.NextInt();
+                int numCorridors = io.NextInt();
                 if (numIntersections == 0 && numCorridors == 0)
                     break;
                 else
@@ -260,19 +367,24 @@ namespace GetShorty
                     Graph dungeon = new Graph(numIntersections);
                     for (int i = 0; i < numCorridors; i++)
                     {
-                        var edgeData = getEdge();
-                        int v1 = edgeData.Item1;
-                        int v2 = edgeData.Item2;
-                        float weight = edgeData.Item3;
+                        //string s = Console.ReadLine();
+                        //string[] edgeValues = s.Split(" ");
+                        int v1 = io.NextInt();
+                        int v2 = io.NextInt();
+                        float weight = io.NextFloat();
+                        //int v1 = edgeData.Item1;
+                        //int v2 = edgeData.Item2;
+                        //float weight = edgeData.Item3;
                         dungeon.addEdge(v1, v2, weight);
                     }
-                    reports.Add(dungeon.findMaxSize());
+                    //reports.Add(dungeon.findMaxSize());
+                    Console.WriteLine(dungeon.findMaxSize().ToString("0.0000"));
                 }
             }
-            for(int i = 0; i < reports.Count; i++)
-            {
-                Console.WriteLine(reports[i].ToString("0.0000"));
-            }
+            //for(int i = 0; i < reports.Count; i++)
+            //{
+            //    Console.WriteLine(reports[i].ToString("0.0000"));
+            //}
                         
             //Console.Write(map.toDOT());
             //Console.Read();
