@@ -129,44 +129,44 @@ namespace GetShorty
                         return result;
                 }
             }
-            private SortedList<int, SortedSet<int>> MaxForTime;
+            private List<SortedSet<int>> data;
             private int TimeRemaining;
 
             public OptimalQueue(int time)
             {
-                MaxForTime = new SortedList<int, SortedSet<int>>(new DescendingComparer<int>());
+                data = new List<SortedSet<int>>();
+                for(int i = 0; i < time; i++)
+                {
+                    data.Add(new SortedSet<int>(new DescendingOrEqualComparer<int>()));
+                }
                 TimeRemaining = time;
             }
 
             public void Enqueue(int cash, int time)
             {
-                if (MaxForTime.ContainsKey(time))
-                {
-                    //if (MaxForTime[time] < cash)
-                    //{
-                    //    MaxForTime[time] = cash;
-                    //}
-                    //else
-                    //{
-                    //    return;
-                    //}
-                    MaxForTime[time].Add(cash);
-                }
-                else
-                {
-                    MaxForTime.Add(time, new SortedSet<int>(new DescendingOrEqualComparer<int>()));
-                    MaxForTime[time].Add(cash);
-                }
+
+                data[time].Add(cash);
             }
             public int MaxCash()
             {
                 int toReturn = 0;
-                TimeRemaining = MaxForTime.Keys[0];
-                currentWaitTime = MaxForTime.Keys[0];
-                while (TimeRemaining >= 0)
+                for(int currentSlot = TimeRemaining - 1; currentSlot >= 0; currentSlot--)
                 {
-                    
-                    toReturn += ;
+                    int currMax = 0;
+                    int maxSlot = TimeRemaining - 1;
+                    for (int findMax = TimeRemaining - 1; findMax >= currentSlot; findMax--)
+                    {
+                        if (data[findMax].Count == 0)
+                            continue;
+                        int MaxAtI = data[findMax].First();
+                        if (MaxAtI > currMax)
+                        {
+                            currMax = MaxAtI;
+                            maxSlot = findMax;
+                        }
+                    }
+                    toReturn += currMax;
+                    data[maxSlot].Remove(currMax);//TODO: fix removing
                 }
                 return toReturn;
             }
