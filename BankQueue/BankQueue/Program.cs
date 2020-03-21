@@ -179,7 +179,7 @@ namespace GetShorty
                     }
                     toReturn += currMax;
                     if(currMax != 0)
-                        data[maxSlot].RemoveAt(data[maxSlot].Count()-1);//TODO: fix removing
+                        data[maxSlot].RemoveAt(data[maxSlot].Count()-1);
                 }
                 return toReturn;
             }
