@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace GetShorty
 {
+    public static class listExt
+    {
+        public static void AddSorted<T>(this List<T> list, T value)
+        {
+            int x = list.BinarySearch(value);
+            list.Insert((x >= 0) ? x : ~x, value);
+        }
+    }
     class Program
     {
         class Kattio
@@ -107,37 +115,38 @@ namespace GetShorty
                 }
             }
         }
+
         
         class OptimalQueue
         {
-            class DescendingComparer<TKey>: IComparer<int>
-            {
-                public int Compare(int x, int y)
-                {
-                    return y.CompareTo(x);
-                }
-            }
+            //class DescendingComparer<TKey>: IComparer<int>
+            //{
+            //    public int Compare(int x, int y)
+            //    {
+            //        return y.CompareTo(x);
+            //    }
+            //}
 
-            class DescendingOrEqualComparer<TKey> : IComparer<int>
-            {
-                public int Compare(int x, int y)
-                {
-                    int result = y.CompareTo(x);
-                    if (result == 0)
-                        return 1;
-                    else
-                        return result;
-                }
-            }
-            private List<SortedSet<int>> data;
+            //class DescendingOrEqualComparer<TKey> : IComparer<int>
+            //{
+            //    public int Compare(int x, int y)
+            //    {
+            //        int result = y.CompareTo(x);
+            //        if (result == 0)
+            //            return 1;
+            //        else
+            //            return result;
+            //    }
+            //}
+            private List<List<int>> data;
             private int TimeRemaining;
 
             public OptimalQueue(int time)
             {
-                data = new List<SortedSet<int>>();
+                data = new List<List<int>>();
                 for(int i = 0; i < time; i++)
                 {
-                    data.Add(new SortedSet<int>(new DescendingOrEqualComparer<int>()));
+                    data.Add(new List<int>());
                 }
                 TimeRemaining = time;
             }
@@ -145,7 +154,7 @@ namespace GetShorty
             public void Enqueue(int cash, int time)
             {
 
-                data[time].Add(cash);
+                data[time].AddSorted<int>(cash);
             }
             public int MaxCash()
             {
@@ -153,12 +162,15 @@ namespace GetShorty
                 for(int currentSlot = TimeRemaining - 1; currentSlot >= 0; currentSlot--)
                 {
                     int currMax = 0;
-                    int maxSlot = TimeRemaining - 1;
-                    for (int findMax = TimeRemaining - 1; findMax >= currentSlot; findMax--)
+                    int maxSlot = data.Count() - 1;
+                    for (int findMax = maxSlot; findMax >= currentSlot; findMax--)
                     {
                         if (data[findMax].Count == 0)
+                        {
+                            //data.RemoveAt(findMax);
                             continue;
-                        int MaxAtI = data[findMax].First();
+                        }
+                        int MaxAtI = data[findMax][data[findMax].Count()-1];
                         if (MaxAtI > currMax)
                         {
                             currMax = MaxAtI;
@@ -166,10 +178,13 @@ namespace GetShorty
                         }
                     }
                     toReturn += currMax;
-                    data[maxSlot].Remove(currMax);//TODO: fix removing
+                    if(currMax != 0)
+                        data[maxSlot].RemoveAt(data[maxSlot].Count()-1);//TODO: fix removing
                 }
                 return toReturn;
             }
+
+            
         }
         
         static void Main(string[] args)
@@ -191,7 +206,7 @@ namespace GetShorty
             //Kattio.BufferedStdoutWriter writer = new Kattio.BufferedStdoutWriter();
 
             Console.WriteLine(q.MaxCash());
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }
