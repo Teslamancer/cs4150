@@ -10,7 +10,8 @@ namespace UnderTheRainbow
     
     class Program
     {
-        public static Dictionary<int, int> penalties = new Dictionary<int, int>();
+        public static Dictionary<int, int> simplePenaltyCache = new Dictionary<int, int>();
+        public static Dictionary<int, int> penaltyCache = new Dictionary<int, int>();
         class Kattio
         {
             public class NoMoreTokensException : Exception
@@ -129,12 +130,12 @@ namespace UnderTheRainbow
         {
             
             int traveled = stopDistance - startDistance;
-            if (penalties.ContainsKey(traveled))
-                return penalties[traveled];
+            if (simplePenaltyCache.ContainsKey(traveled))
+                return simplePenaltyCache[traveled];
             else
             {
                 int penalty = (400 - traveled) * (400 - traveled);
-                penalties.Add(traveled, penalty);
+                simplePenaltyCache.Add(traveled, penalty);
                 return penalty;
 
             }
@@ -153,14 +154,26 @@ namespace UnderTheRainbow
 
         public static int penalty(int[] distance, int i)
         {
-            int minPenalty = int.MaxValue;
-            if (i == distance.Length - 1)
-                return 0;
-            for (int j = i+1; j < distance.Length; j++)
+            if (penaltyCache.ContainsKey(i))
             {
-                minPenalty = Math.Min(minPenalty, simplePenalty(distance[i],distance[j]) + penalty(distance, j));
+                return penaltyCache[i];
             }
-            return minPenalty;
+            else
+            {
+                int minPenalty = int.MaxValue;
+                if (i == distance.Length - 1)
+                {
+                    penaltyCache.Add(i, 0);
+                    return 0;
+                }
+                for (int j = i+1; j < distance.Length; j++)
+                {
+                    minPenalty = Math.Min(minPenalty, simplePenalty(distance[i],distance[j]) + penalty(distance, j));
+                }
+                penaltyCache.Add(i, minPenalty);
+                return minPenalty;
+
+            }
         }
     }
 }
