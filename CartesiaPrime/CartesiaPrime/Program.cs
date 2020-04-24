@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace CartesiaPrime
@@ -105,9 +106,14 @@ namespace CartesiaPrime
         }
 
         static int a, b, c, d;
+        static bool[,] grid;
+
+        static Dictionary<Tuple<int, int, int>, int> pathCache;
+        static Dictionary<int, int> xCache = new Dictionary<int, int>();
+        static Dictionary<int, int> yCache = new Dictionary<int, int>();
         static void Main(string[] args)
         {
-
+            pathCache = new Dictionary<Tuple<int, int, int>, int>();
             Kattio.Scanner io = new Kattio.Scanner();
             int xGridCoord = io.NextInt() + 1000;
             int yGridCoord = io.NextInt() + 1000;
@@ -121,7 +127,7 @@ namespace CartesiaPrime
 
             int numBorg = io.NextInt();
 
-            bool[,] grid = new bool[2001, 2001];
+            grid = new bool[2001, 2001];
 
             for (int x = 0; x < 2001; x++)
                 for (int y = 0; y < 2001; y++)
@@ -137,20 +143,34 @@ namespace CartesiaPrime
             if (result > timeConstraint)
                 Console.WriteLine("You will be assimilated! Resistance is futile!");
             else
-                Console.WriteLine("I had " + result + " to spare! Beam me up Scotty!");
+                Console.WriteLine("I had " + (timeConstraint - result) + " to spare! Beam me up Scotty!");
         }
 
         static int minPath(int prevX, int prevY, int constraint, int t)
         {
-            if (prevX == 1000 && prevY == 1000 && t<=constraint+1)
-                return 1;
-            else if (t > constraint+1)
-                return int.MaxValue;
+            if (pathCache.ContainsKey(Tuple.Create(prevX, prevY, t)))
+                return pathCache[Tuple.Create(prevX, prevY, t)];
+            if (prevX == 1000 && prevY == 1000 && t <= constraint + 1)
+            {
+                if (!pathCache.ContainsKey(Tuple.Create(prevX, prevY, t)))
+                {
+                    pathCache.Add(Tuple.Create(prevX, prevY, t), 0);
+                }
+                return 0;
+            }
+            else if (t > constraint+1 || grid[prevX, prevY])
+            {
+                if (!pathCache.ContainsKey(Tuple.Create(prevX, prevY, t)))
+                {
+                    pathCache.Add(Tuple.Create(prevX, prevY, t), 50);
+                }
+                return 50;
+            }
             else
             {
                 int minusXminusY = minPath(prevX - deltaX(t), prevY - deltaY(t), constraint, t+1) + 1;
 
-                int minusXplusY = minPath(prevX - deltaX(t), prevY + deltaY(t), constraint, t+1) + 1;
+                int minusXplusY = minPath(prevX - deltaX(t), prevY + deltaY(t), constraint, t+1) + 1;//problem here
 
                 int plusXminusY = minPath(prevX + deltaX(t), prevY - deltaY(t), constraint, t+1) + 1;
 
@@ -162,6 +182,11 @@ namespace CartesiaPrime
 
                 int minFinal = Math.Min(min1, min2);
 
+                if (!pathCache.ContainsKey(Tuple.Create(prevX, prevY, t)))
+                {
+                    pathCache.Add(Tuple.Create(prevX, prevY, t), minFinal);
+                }
+
                 return minFinal;
             }
             
@@ -170,12 +195,31 @@ namespace CartesiaPrime
 
         static int deltaX(int t)
         {
-            return (a * t) % b;
+            if (xCache.ContainsKey(t))
+            {
+                return xCache[t];
+            }
+            else
+            {
+                int dX = (a * t) % b;
+                xCache.Add(t, dX);
+                return dX;
+            }
         }
 
         static int deltaY(int t)
         {
-            return (c * t) % d;
+            if (yCache.ContainsKey(t))
+            {
+                return yCache[t];
+            }
+            else
+            {
+                int dY = (c * t) % d;
+                yCache.Add(t, dY);
+                return dY;
+
+            }
         }
     }
 }
